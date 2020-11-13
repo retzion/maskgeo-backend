@@ -1,0 +1,43 @@
+{
+  "name": "maskgeo-backend",
+  "version": "0.1.0",
+  "repository": "https://github.com/retzion/maskgeo-backend.git",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:prod": "MG_ENV=production node index.js",
+    "start:local": "MG_ENV=local PORT=3001 nodemon --inspect index.js",
+    "start:staging": "MG_ENV=staging PORT=3001 node index.js",
+    "build": "react-scripts build",
+    "test": "cross-env NODE_ENV=test MG_ENV=local PORT=3001 jest --testTimeout=10000 --detectOpenHandles",
+    "eject": "react-scripts eject"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "atob": "2.1.2",
+    "body-parser": "1.19.0",
+    "cookie-parser": "1.4.5",
+    "cors": "2.8.5",
+    "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "js-sha256": "0.9.0",
+    "jsonwebtoken": "8.5.1",
+    "mongodb": "3.5.7",
+    "nodemailer": "6.4.8",
+    "nodemailer-handlebars": "1.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2",
+    "jest": "^24.9.0",
+    "nodemon": "^2.0.4",
+    "supertest": "^6.0.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}

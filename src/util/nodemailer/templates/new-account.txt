@@ -1,0 +1,8 @@
+Welcome to MaskForecast!
+
+Hello {{username}},
+
+Here is a link to log you into your new MaskForecast account:
+{{link}}
+
+This link will expire {{expires}}.
