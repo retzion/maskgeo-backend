@@ -74,7 +74,7 @@ function setJwtCookie(res, cookieName, token, expire) {
   res.cookie(cookieName, token, {
     expires,
     httpOnly: true,
-    secure: false,//process.env.MG_ENV !== "local",
+    secure: process.env.MG_ENV !== "local",
   })
   return res
 }
