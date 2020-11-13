@@ -13,9 +13,7 @@
     "start:prod": "MG_ENV=production node index.js",
     "start:local": "MG_ENV=local PORT=3001 nodemon --inspect index.js",
     "start:staging": "MG_ENV=staging PORT=3001 node index.js",
-    "build": "react-scripts build",
-    "test": "cross-env NODE_ENV=test MG_ENV=local PORT=3001 jest --testTimeout=10000 --detectOpenHandles",
-    "eject": "react-scripts eject"
+    "test": "cross-env NODE_ENV=test MG_ENV=local PORT=3001 jest --testTimeout=10000 --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",
