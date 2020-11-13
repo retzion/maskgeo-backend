@@ -4,6 +4,10 @@
   "repository": "https://github.com/retzion/maskgeo-backend.git",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "15.2.0",
+    "npm": "7.x"
+  },
   "scripts": {
     "start": "node index.js",
     "start:prod": "MG_ENV=production node index.js",
