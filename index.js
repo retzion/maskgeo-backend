@@ -14,7 +14,7 @@ const { sendMail } = require("./src/util")
 app.use(express.json())
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://maskgeo.herokuapp.com"],
+    origin: ["http://localhost:3000", "https://maskgeo.herokuapp.com", "http://www.maskforecast.com"],
     credentials: true,
   })
 )
@@ -29,7 +29,10 @@ app.use((req, res, next) => {
     .map(k => k.trim())
   if (!validApiKeys.includes(apiKey))
     return apiError('HTTP header "API-KEY" was not found.', res)
-  else next()
+
+  res.setHeader('Access-Control-Allow-Headers', 'Set-Cookie')
+
+  next()
 })
 
 // error handling
