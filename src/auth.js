@@ -56,14 +56,14 @@ function authenticateToken(req, res, next) {
       const accessToken = createAccessToken(req.jwtData)
 
       // return the the access token as an HttpOnly cookie
-      res = setJwtCookie(res, jwTokenCookieName, accessToken)
+      res = setJwtCookie(req, res, jwTokenCookieName, accessToken)
     }
     return next()
   })
 }
 
 // core token functions
-function setJwtCookie(res, cookieName, token, expire) {
+function setJwtCookie(req, res, cookieName, token, expire) {
   let expires = new Date()
   const milliseconds = expire
     ? -1000
@@ -74,7 +74,8 @@ function setJwtCookie(res, cookieName, token, expire) {
   res.cookie(cookieName, token, {
     expires,
     httpOnly: true,
-    secure: process.env.MG_ENV !== "local",
+    sameSite: req.protocol === "https" ? 'None' : 'Lax',
+    secure: req.protocol === "https",
   })
   return res
 }
@@ -88,8 +89,8 @@ async function getToken(req, res) {
   const refreshToken = createRefreshToken(user)
 
   // return the refresh tokens as httponly cookies
-  res = setJwtCookie(res, jwTokenCookieName, accessToken)
-  res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken)
+  res = setJwtCookie(req, res, jwTokenCookieName, accessToken)
+  res = setJwtCookie(req, res, jwRefreshTokenCookieName, refreshToken)
   return res.send(user)
 }
 
@@ -133,8 +134,8 @@ async function removeToken(req, res) {
           const foundToken = refreshTokens.find(token => token === refreshToken)
 
           removeRefreshToken(refreshToken)
-          res = setJwtCookie(res, jwTokenCookieName, "", true)
-          res = setJwtCookie(res, jwRefreshTokenCookieName, "", true)
+          res = setJwtCookie(req, res, jwTokenCookieName, "", true)
+          res = setJwtCookie(req, res, jwRefreshTokenCookieName, "", true)
 
           if (!foundToken) return res.sendStatus(204)
           else return res.status(200).send("DELETED")
