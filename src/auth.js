@@ -74,7 +74,7 @@ function setJwtCookie(req, res, cookieName, token, expire) {
   res.cookie(cookieName, token, {
     expires,
     httpOnly: true,
-    sameSite: req.protocol === "https" ? 'None' : 'Lax',
+    // sameSite: req.protocol === "https" ? 'None' : 'Lax',
     secure: req.protocol === "https",
   })
   return res

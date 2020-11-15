@@ -34,18 +34,23 @@ app.use((req, res, next) => {
   if (!validApiKeys.includes(apiKey))
     return apiError('HTTP header "API-KEY" was not found.', res)
 
+  const secure = req.headers.origin.includes("https://")
+  const accessControlRequestHeaders = secure
+    ? ["Access-Control-Request-Headers", "*; SameSite=None; Secure"]
+    : ["Access-Control-Request-Headers", "*; SameSite=Lax"]
+
   // set some response headers
-  res.header("Access-Control-Allow-Origin", req.headers.origin)
-  res.header("Access-Control-Request-Headers", "*; SameSite=None; Secure")
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, HEAD, POST, PUT, DELETE, OPTIONS"
-  )
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  )
-  res.header("Access-Control-Allow-Credentials", "true")
+  // res.header("Access-Control-Allow-Origin", req.headers.origin)
+  // res.header(...accessControlRequestHeaders)
+  // res.header(
+  //   "Access-Control-Allow-Methods",
+  //   "GET, HEAD, POST, PUT, DELETE, OPTIONS"
+  // )
+  // res.header(
+  //   "Access-Control-Allow-Headers",
+  //   "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  // )
+  // res.header("Access-Control-Allow-Credentials", "true")
 
   next()
 })
