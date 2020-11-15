@@ -64,8 +64,10 @@ function authenticateToken(req, res, next) {
 
 // core token functions
 function setJwtCookie(req, res, cookieName, token, expire) {
-  const secure = req.headers.referer.includes("https")
-  console.log({secure})
+  const secure =
+    (req.protocol && req.protocol.includes("https")) ||
+    (req.headers.referer && req.headers.referer.includes("https"))
+  console.log({ secure })
   let expires = new Date()
   const milliseconds = expire
     ? -1000
@@ -76,7 +78,7 @@ function setJwtCookie(req, res, cookieName, token, expire) {
   res.cookie(cookieName, token, {
     expires,
     httpOnly: true,
-    sameSite: secure ? 'None' : 'Lax',
+    sameSite: secure ? "None" : "Lax",
     secure,
   })
   return res
