@@ -64,11 +64,8 @@ function authenticateToken(req, res, next) {
 
 // core token functions
 function setJwtCookie(req, res, cookieName, token, expire) {
-  console.log({protocol: req.protocol, origin: req.rawHeaders && req.rawHeaders.origin})
-  const secure =
-    (req.protocol && req.protocol.includes("https")) ||
-    (req.rawHeaders.origin && req.rawHeaders.origin.includes("https"))
-  console.log({ secure })
+  const secure = process.env["MG_ENV"] !== 'local'
+  console.log({ mgEnv: process.env["MG_ENV"], secure })
   let expires = new Date()
   const milliseconds = expire
     ? -1000
