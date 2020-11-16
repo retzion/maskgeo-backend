@@ -64,6 +64,7 @@ function authenticateToken(req, res, next) {
 
 // core token functions
 function setJwtCookie(req, res, cookieName, token, expire) {
+  console.log({protocol: req.protocol, origin: req.rawHeaders && req.rawHeaders.origin})
   const secure =
     (req.protocol && req.protocol.includes("https")) ||
     (req.rawHeaders.origin && req.rawHeaders.origin.includes("https"))
