@@ -1,5 +1,6 @@
 const { mongoConnect } = require("../mongo")
 const auth = require("../auth")
+const reviews = require("./Reviews")
 const user = require("./User")
 
 /**
@@ -65,6 +66,7 @@ module.exports = {
   createUser: user.createUser,
   getToken,
   getTokenFromMagicLink: user.getTokenFromMagicLink,
+  postReview: reviews.postReview,
   removeToken: auth.removeToken,
   requestMagicLoginLink: user.requestMagicLoginLink,
   testConnection,

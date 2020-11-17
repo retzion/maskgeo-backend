@@ -34,22 +34,13 @@ app.use((req, res, next) => {
   if (!validApiKeys.includes(apiKey))
     return apiError('HTTP header "API-KEY" was not found.', res)
 
-  const secure = req.headers.origin.includes("https://")
+  const secure = req.headers.origin && req.headers.origin.includes("https://")
   const accessControlRequestHeaders = secure
     ? ["Access-Control-Request-Headers", "*; SameSite=None; Secure"]
     : ["Access-Control-Request-Headers", "*; SameSite=Lax"]
 
   // set some response headers
-  // res.header("Access-Control-Allow-Origin", req.headers.origin)
-  // res.header(...accessControlRequestHeaders)
-  // res.header(
-  //   "Access-Control-Allow-Methods",
-  //   "GET, HEAD, POST, PUT, DELETE, OPTIONS"
-  // )
-  res.header(
-    "Access-Control-Allow-Headers", "*"
-    // "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  )
+  res.header("Access-Control-Allow-Headers", "*")
   res.header("Access-Control-Allow-Credentials", "true")
 
   next()
@@ -101,18 +92,8 @@ app.delete("/jwt", authenticateToken, api.removeToken)
 // request a magic link to log in
 app.get("/login/:email", api.requestMagicLoginLink)
 
+// post a rating and review
+app.post("/review", authenticateToken, api.postReview)
+
 // init
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-
-const email = "retzion@gmail.com"
-const token = "948fu34wu39w83j4wje4fw034fj9wo43"
-if (false) {
-  console.log("sending mail...")
-  sendMail(email, "This is a test email (2)", "new-results", {
-    email,
-    expires: "in 10 minutes", // (new Date()).toISOString()
-    link: `http://localhost:3000/token/${token}`,
-    buttonBackgroundColor: "cornflowerblue",
-    buttonTextColor: "#ffffff",
-  })
-}

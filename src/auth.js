@@ -65,7 +65,6 @@ function authenticateToken(req, res, next) {
 // core token functions
 function setJwtCookie(req, res, cookieName, token, expire) {
   const secure = process.env["MG_ENV"] !== 'local'
-  console.log({ mgEnv: process.env["MG_ENV"], secure })
   let expires = new Date()
   const milliseconds = expire
     ? -1000
