@@ -64,6 +64,7 @@ async function checkUser(user, returnAllData) {
 
 module.exports = {
   createUser: user.createUser,
+  fetchReviews: reviews.fetchReviews,
   getToken,
   getTokenFromMagicLink: user.getTokenFromMagicLink,
   postReview: reviews.postReview,
