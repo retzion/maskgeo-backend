@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
       .findOne(queryKey)
       .catch(() => undefined)
     if (existingReview) 
-      promise.resolve({error: "You can only post one review per place per week."})
+      promise.resolve({error: "You have already rated/reviewed this location."})
     else {
       existingReview = await reviewCollection
         .insertOne(review)

@@ -1,5 +1,5 @@
 const { labels, statusStates, statusSteps } = require('../../config')
-const { sendMail } = require('./nodemailer')
+const sendMail = require('./nodemailer')
 
 const getRepoInfo = payload => {
   const { head_commit, ref, repository, sha: payloadSha } = payload

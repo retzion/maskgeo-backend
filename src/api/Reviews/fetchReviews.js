@@ -18,6 +18,7 @@ module.exports = async (req, res) => {
     const reviewCollection = db.collection("Review")
     let existingReviews = await reviewCollection
       .find(queryKey)
+      .sort({ timestamp: -1 })
       .toArray()
 
       .catch(() => undefined)

@@ -9,7 +9,7 @@ const mailServerOptions = {
 }
 const transporter = nodemailer.createTransport(mailServerOptions)
 
-const sendMail = async (email, subject, templateName, variables) => {
+module.exports = async (email, subject, templateName, variables) => {
   if (!email || !subject || !templateName) throw "missing parameters"
 
   const htmlFilePath = `./src/util/nodemailer/templates/${templateName}.html`
@@ -47,6 +47,3 @@ const sendMail = async (email, subject, templateName, variables) => {
   })
 }
 
-module.exports = {
-  sendMail,
-}
