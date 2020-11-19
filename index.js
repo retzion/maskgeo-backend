@@ -96,7 +96,7 @@ app.get("/login/:email", api.requestMagicLoginLink)
 app.post("/review", authenticateToken, api.postReview)
 
 // get ratings and reviews for a location
-app.get("/reviews", authenticateToken, api.fetchReviews)
+app.get("/reviews", api.fetchReviews)
 
 // init
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
