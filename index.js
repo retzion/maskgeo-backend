@@ -44,6 +44,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin)
   res.header("Referrer-Policy", "origin-when-cross-origin")
   res.header("Access-Control-Allow-Credentials", "true")
+  res.header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, HEAD, PUT, DELETE")
 
   next()
 })
