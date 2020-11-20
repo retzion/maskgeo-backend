@@ -39,7 +39,7 @@ app.use((req, res, next) => {
     : ["Access-Control-Request-Headers", "*; SameSite=Lax"]
 
   // set some response headers
-  res.header("Access-Control-Allow-Headers", "*")
+  res.header("Access-Control-Allow-Origin", "*")
   res.header("Access-Control-Allow-Credentials", "true")
 
   next()
