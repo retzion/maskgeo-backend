@@ -30,18 +30,20 @@ module.exports = async (req, res) => {
     let existingReview = await reviewCollection
       .findOne(queryKey)
       .catch(() => undefined)
-    if (false && existingReview) 
-      promise.resolve({error: "You have already rated/reviewed this location."})
+    const throttle = new Date()
+    throttle.setDate(throttle.getDate() - 1)
+    if (existingReview && existingReview.timestamp > throttle)
+      promise.resolve({
+        error: "You may write one review for a each location once per day.",
+      })
     else {
-      existingReview = await reviewCollection
-        .insertOne(review)
-        .catch(e => {
-          console.error(e)
-          promise.resolve({error: "Error creating review."})
-        })
+      existingReview = await reviewCollection.insertOne(review).catch(e => {
+        console.error(e)
+        promise.resolve({ error: "Error creating review." })
+      })
     }
     if (existingReview) promise.resolve(review)
-    else promise.resolve({error: "Error creating review."})
+    else promise.resolve({ error: "Error creating review." })
   }
 
   // db call
