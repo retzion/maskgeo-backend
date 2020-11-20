@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
     else if (createdUser.error) return res.send(createdUser)
     else {
       /** @DEV Create and email a magic link containing a token to fetch a JWT */
-      await sendMail(email, "MaskForecast Magic Link", "new-account", {
+      await sendMail(email, "Welcome to MaskForecast", "new-account", {
         email,
         username,
         expires: "in 10 minutes",
