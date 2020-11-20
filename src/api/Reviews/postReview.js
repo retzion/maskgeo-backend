@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     let existingReview = await reviewCollection
       .findOne(queryKey)
       .catch(() => undefined)
-    if (existingReview) 
+    if (false && existingReview) 
       promise.resolve({error: "You have already rated/reviewed this location."})
     else {
       existingReview = await reviewCollection

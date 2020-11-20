@@ -30,6 +30,7 @@ function removeRefreshToken(refreshToken) {
 
 // middleware function for authorization
 function authenticateToken(req, res, next) {
+
   const {
     cookies: {
       [jwTokenCookieName]: token,

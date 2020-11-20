@@ -8,7 +8,6 @@ const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
-const { sendMail } = require("./src/util")
 
 // middleware
 app.use(express.json())
