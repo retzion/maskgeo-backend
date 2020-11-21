@@ -1,12 +1,12 @@
 const jwt = require("jsonwebtoken")
 
 // config
-const accessMinuteLifespan = 10
+const accessMinuteLifespan = 7
 const refreshDayLifespan = 9
 const tokenLifespan = {
   access: {
     milliseconds: accessMinuteLifespan * 60 * 1000,
-    unitMeasurement: `${accessMinuteLifespan}m`,
+    unitMeasurement: `${accessMinuteLifespan}d`,
   },
   refresh: {
     milliseconds: refreshDayLifespan * 24 * 60 * 60 * 1000,
