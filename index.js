@@ -6,6 +6,8 @@ const app = express()
 const port = process.env.PORT || 3000
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
+
+const { version } = require("./package.json")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
 
@@ -45,7 +47,8 @@ app.use((req, res, next) => {
   res.header("Referrer-Policy", "origin-when-cross-origin")
   res.header("Access-Control-Allow-Credentials", "true")
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, HEAD, PUT, DELETE")
-
+  res.cookie("api-version", version)
+  
   next()
 })
 
@@ -102,4 +105,4 @@ app.post("/review", authenticateToken, api.postReview)
 app.get("/reviews", api.fetchReviews)
 
 // init
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`v${version} running on port ${port}!`))
