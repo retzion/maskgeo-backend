@@ -31,6 +31,8 @@ module.exports = async (req, res) => {
     }
     const [magicLinkToken, magicLinkTokenHash] = createMagicLinkAndHash()
 
+    let newUser
+
     // db function
     const fnCreateUser = async (db, promise) => {
       const userCollection = db.collection("User")
@@ -39,26 +41,24 @@ module.exports = async (req, res) => {
         .catch(() => undefined)
       if (existingUser) {
         if (existingUser.email === email)
-          promise.resolve({error: "Email address already exists."})
+          promise.resolve({ error: "Email address already exists." })
         if (existingUser.username.toLowerCase() === username.toLowerCase())
-          promise.resolve({error: "Username already exists."})
+          promise.resolve({ error: "Username already exists." })
       } else {
         const magicLinkExpires = new Date()
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
-        existingUser = await userCollection
-          .insertOne({ email, username, magicLinkTokenHash, magicLinkExpires })
-          .catch(e => {
-            console.error(e)
-            promise.resolve({error: "Error creating user."})
-          })
+        newUser = { email, username, magicLinkTokenHash, magicLinkExpires }
+        existingUser = await userCollection.insertOne(newUser).catch(e => {
+          console.error(e)
+          promise.resolve({ error: "Error creating user." })
+        })
       }
       if (existingUser) promise.resolve(existingUser)
-      else promise.resolve({error: "Error creating user."})
+      else promise.resolve({ error: "Error creating user." })
     }
 
     // db call
-    const createdUser = await mongoConnect(fnCreateUser)
-      .catch(console.error)
+    const createdUser = await mongoConnect(fnCreateUser).catch(console.error)
 
     // send response
     if (!createdUser) return res.sendStatus(500)
@@ -80,4 +80,3 @@ module.exports = async (req, res) => {
     return res.status(500).send(err)
   }
 }
-

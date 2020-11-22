@@ -48,14 +48,16 @@ function authenticateToken(req, res, next) {
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
           if (err) return res.sendStatus(403)
-          req.jwtData = refreshTokenUser
+          req.jwtData = {user: refreshTokenUser}
         }
       )
-    } else req.jwtData = reduceUserData(user)
+    } else req.jwtData = {user:reduceUserData(user)}
 
-    if (req.jwtData) {
+    if (req.jwtData.user) {
       // create a fresh token
-      const accessToken = createAccessToken(req.jwtData)
+      const [accessToken, refreshToken] = createTokens(req.jwtData.user)
+      req.jwtData.accessToken = accessToken
+      req.jwtData.refreshToken = refreshToken
 
       // return the the access token as a clear cookie
       /** @TODO Go back to using HTTPOnly when devugged */
@@ -67,7 +69,7 @@ function authenticateToken(req, res, next) {
 
 // core token functions
 function setJwtCookie(res, cookieName, token, expire, httpOnly) {
-  const secure = false//process.env["MG_ENV"] !== "local"
+  const secure = false //process.env["MG_ENV"] !== "local"
   let expires = new Date()
   const milliseconds = expire
     ? -100000000
@@ -89,8 +91,7 @@ async function getToken(req, res) {
   if (!user) return res.sendStatus(401)
 
   // create a jwt from the valid fetched user
-  const accessToken = createAccessToken(user)
-  const refreshToken = createRefreshToken(user)
+  const [accessToken, refreshToken] = createTokens(user)
 
   // return the refresh tokens as httponly cookies
   res = setJwtCookie(res, jwTokenCookieName, accessToken)
@@ -139,7 +140,13 @@ async function removeToken(req, res) {
 
           removeRefreshToken(refreshToken)
           res = setJwtCookie(res, jwTokenCookieName, "", new Date())
-          res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
+          res = setJwtCookie(
+            res,
+            jwRefreshTokenCookieName,
+            "",
+            new Date(),
+            true
+          )
 
           if (!foundToken) return res.sendStatus(204)
           else return res.status(200).send("DELETED")
@@ -150,6 +157,9 @@ async function removeToken(req, res) {
 }
 
 // helpers
+function createTokens(user) {
+  return [createAccessToken(user), createRefreshToken(user)]
+}
 function createAccessToken(user) {
   return jwt.sign(reduceUserData(user), process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: tokenLifespan.access.unitMeasurement,
@@ -177,7 +187,9 @@ function reduceUserData(user) {
 // exports
 module.exports = {
   authenticateToken,
+  createTokens,
   getToken,
+  reduceUserData,
   removeToken,
   verifyToken,
 }

@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     jwtData,
   } = req
 
-  const valid = jwtData._id === user._id
+  const valid = jwtData.user._id === user._id
   const review = {
     geoCoordinates,
     googlePlaceId,
