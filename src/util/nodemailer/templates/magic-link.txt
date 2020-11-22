@@ -1,4 +1,4 @@
-MaskForecast Login
+{{websiteOneWordName}} Login
 
 Hello {{username}},
 

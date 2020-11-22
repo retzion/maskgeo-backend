@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   // res.header("Referrer-Policy", "origin-when-cross-origin")
   res.header("Access-Control-Allow-Credentials", "true")
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, HEAD, PUT, DELETE")
-  res.cookie("api-version", version)
+  res.header("X-API-Version", version)
 
   next()
 })

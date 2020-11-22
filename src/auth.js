@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken")
 
+const { version: apiVersion } = require("../package.json")
+
 // config
 const accessMinuteLifespan = 60 * 72
 const refreshDayLifespan = 9
@@ -38,7 +40,9 @@ function authenticateToken(req, res, next) {
     headers: { authorization = "" },
   } = req
   auth = token || authorization.split(" ")[1]
-  if (!auth && !refreshToken) return res.sendStatus(403)
+  res.jwtData = { apiVersion }
+  if (!auth && !refreshToken)
+    return res.send({ ...res.jwtData, status: 403, error: "Forbidden" })
 
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
@@ -48,10 +52,10 @@ function authenticateToken(req, res, next) {
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
           if (err) return res.sendStatus(403)
-          req.jwtData = {user: refreshTokenUser}
+          req.jwtData.user = refreshTokenUser
         }
       )
-    } else req.jwtData = {user:reduceUserData(user)}
+    } else req.jwtData.user = reduceUserData(user)
 
     if (req.jwtData.user) {
       // create a fresh token
@@ -96,7 +100,7 @@ async function getToken(req, res) {
   // return the refresh tokens as httponly cookies
   res = setJwtCookie(res, jwTokenCookieName, accessToken, null, true)
   res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken, null, true)
-  return res.send({ accessToken, refreshToken, user })
+  return res.send({ accessToken, refreshToken, user, apiVersion: req.jwtData && req.jwtData.apiVersion })
 }
 
 async function verifyToken(req, res) {

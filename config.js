@@ -1,3 +1,8 @@
+const websiteSettings = {
+  friendlyName: "Mask Forecast",
+  oneWordName: "MaskForecast",
+}
+
 const appEnvironments = {
   local: "local",
   production: "production",
@@ -12,11 +17,12 @@ const smtpAccount = {
   },
   host: "aztek.websitewelcome.com",
   port: 465,
-  senderName: "MaskForecast",
+  senderName: websiteSettings.oneWordName,
 }
 
 module.exports = {
   appEnvironment,
   appEnvironments,
   smtpAccount,
+  websiteSettings,
 }
