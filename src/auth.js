@@ -57,7 +57,8 @@ function authenticateToken(req, res, next) {
       // create a fresh token
       const accessToken = createAccessToken(req.jwtData)
 
-      // return the the access token as an HttpOnly cookie
+      // return the the access token as a clear cookie
+      /** @TODO Go back to using HTTPOnly when devugged */
       res = setJwtCookie(res, jwTokenCookieName, accessToken)
     }
     return next()
@@ -137,8 +138,8 @@ async function removeToken(req, res) {
           const foundToken = refreshTokens.find(token => token === refreshToken)
 
           removeRefreshToken(refreshToken)
-          res = setJwtCookie(res, jwTokenCookieName, "")
-          res = setJwtCookie(res, jwRefreshTokenCookieName, "")
+          res = setJwtCookie(res, jwTokenCookieName, "", true)
+          res = setJwtCookie(res, jwRefreshTokenCookieName, "", true)
 
           if (!foundToken) return res.sendStatus(204)
           else return res.status(200).send("DELETED")
