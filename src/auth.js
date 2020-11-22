@@ -1,12 +1,12 @@
 const jwt = require("jsonwebtoken")
 
 // config
-const accessMinuteLifespan = 7
+const accessMinuteLifespan = 60 * 72
 const refreshDayLifespan = 9
 const tokenLifespan = {
   access: {
     milliseconds: accessMinuteLifespan * 60 * 1000,
-    unitMeasurement: `${accessMinuteLifespan}d`,
+    unitMeasurement: `${accessMinuteLifespan}m`,
   },
   refresh: {
     milliseconds: refreshDayLifespan * 24 * 60 * 60 * 1000,
@@ -60,8 +60,6 @@ function authenticateToken(req, res, next) {
       // return the the access token as a clear cookie
       /** @TODO Go back to using HTTPOnly when devugged */
       res = setJwtCookie(res, jwTokenCookieName, accessToken)
-      res = setJwtCookie(res, "clear-" + jwTokenCookieName, "", new Date(), true)
-      res = setJwtCookie(res, "clear-" + jwRefreshTokenCookieName, "", new Date(), true)
     }
     return next()
   })
@@ -69,7 +67,7 @@ function authenticateToken(req, res, next) {
 
 // core token functions
 function setJwtCookie(res, cookieName, token, expire, httpOnly) {
-  const secure = process.env["MG_ENV"] !== "local"
+  const secure = false//process.env["MG_ENV"] !== "local"
   let expires = new Date()
   const milliseconds = expire
     ? -100000000
@@ -79,7 +77,7 @@ function setJwtCookie(res, cookieName, token, expire, httpOnly) {
   expires.setMilliseconds(milliseconds)
   res.cookie(cookieName, token, {
     expires,
-    httpOnly: httpOnly || cookieName === jwRefreshTokenCookieName,
+    httpOnly,
     sameSite: secure ? "None" : "Lax",
     secure,
   })
@@ -96,7 +94,7 @@ async function getToken(req, res) {
 
   // return the refresh tokens as httponly cookies
   res = setJwtCookie(res, jwTokenCookieName, accessToken)
-  res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken)
+  res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken, null, true)
   return res.send({ accessToken, refreshToken, user })
 }
 
@@ -141,7 +139,7 @@ async function removeToken(req, res) {
 
           removeRefreshToken(refreshToken)
           res = setJwtCookie(res, jwTokenCookieName, "", new Date())
-          res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date())
+          res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
 
           if (!foundToken) return res.sendStatus(204)
           else return res.status(200).send("DELETED")
