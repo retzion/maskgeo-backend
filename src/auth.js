@@ -60,24 +60,26 @@ function authenticateToken(req, res, next) {
       // return the the access token as a clear cookie
       /** @TODO Go back to using HTTPOnly when devugged */
       res = setJwtCookie(res, jwTokenCookieName, accessToken)
+      res = setJwtCookie(res, "clear-" + jwTokenCookieName, "", new Date(), true)
+      res = setJwtCookie(res, "clear-" + jwRefreshTokenCookieName, "", new Date(), true)
     }
     return next()
   })
 }
 
 // core token functions
-function setJwtCookie(res, cookieName, token, expire) {
+function setJwtCookie(res, cookieName, token, expire, httpOnly) {
   const secure = process.env["MG_ENV"] !== "local"
   let expires = new Date()
   const milliseconds = expire
-    ? -1000
+    ? -100000000
     : cookieName === jwTokenCookieName
     ? tokenLifespan.access.milliseconds
     : tokenLifespan.refresh.milliseconds
   expires.setMilliseconds(milliseconds)
   res.cookie(cookieName, token, {
     expires,
-    httpOnly: cookieName === jwRefreshTokenCookieName,
+    httpOnly: httpOnly || cookieName === jwRefreshTokenCookieName,
     sameSite: secure ? "None" : "Lax",
     secure,
   })
@@ -138,8 +140,8 @@ async function removeToken(req, res) {
           const foundToken = refreshTokens.find(token => token === refreshToken)
 
           removeRefreshToken(refreshToken)
-          res = setJwtCookie(res, jwTokenCookieName, "", true)
-          res = setJwtCookie(res, jwRefreshTokenCookieName, "", true)
+          res = setJwtCookie(res, jwTokenCookieName, "", new Date())
+          res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date())
 
           if (!foundToken) return res.sendStatus(204)
           else return res.status(200).send("DELETED")
