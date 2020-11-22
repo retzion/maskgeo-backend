@@ -34,15 +34,22 @@ function removeRefreshToken(refreshToken) {
 function authenticateToken(req, res, next) {
   const {
     cookies: {
-      [jwTokenCookieName]: token,
+      [jwTokenCookieName]: accessToken,
       [jwRefreshTokenCookieName]: refreshToken,
     },
     headers: { authorization = "" },
   } = req
-  auth = token || authorization.split(" ")[1]
-  res.jwtData = { apiVersion }
+  auth = accessToken || authorization.split(" ")[1]
+  req.jwtData = { apiVersion }
+
+  if (req.method === 'DELETE') {
+    res = setJwtCookie(res, jwTokenCookieName, "", new Date(), true)
+    res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
+    // res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
+  }
+
   if (!auth && !refreshToken)
-    return res.send({ ...res.jwtData, status: 403, error: "Forbidden" })
+    return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
 
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
@@ -51,21 +58,26 @@ function authenticateToken(req, res, next) {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
-          if (err) return res.sendStatus(403)
-          req.jwtData.user = refreshTokenUser
+          if (err) return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
+          req.jwtData = {
+            ...req.jwtData,
+            user: refreshTokenUser && reduceUserData(refreshTokenUser),
+          }
         }
       )
-    } else req.jwtData.user = reduceUserData(user)
+    } else
+      req.jwtData = {
+        ...req.jwtData,
+        user: user && reduceUserData(user),
+      }
 
     if (req.jwtData.user) {
       // create a fresh token
-      const [accessToken, refreshToken] = createTokens(req.jwtData.user)
-      req.jwtData.accessToken = accessToken
-      req.jwtData.refreshToken = refreshToken
+      const [newAccessToken, newRefreshToken] = createTokens(req.jwtData.user)
+      req.jwtData.accessToken = newAccessToken
+      req.jwtData.refreshToken = newRefreshToken
 
-      // return the the access token as a clear cookie
       /** @TODO Go back to using HTTPOnly when devugged */
-      res = setJwtCookie(res, jwTokenCookieName, accessToken, null, true)
     }
     return next()
   })
@@ -100,7 +112,12 @@ async function getToken(req, res) {
   // return the refresh tokens as httponly cookies
   res = setJwtCookie(res, jwTokenCookieName, accessToken, null, true)
   res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken, null, true)
-  return res.send({ accessToken, refreshToken, user, apiVersion: req.jwtData && req.jwtData.apiVersion })
+  return res.send({
+    accessToken,
+    refreshToken,
+    user,
+    apiVersion,
+  })
 }
 
 async function verifyToken(req, res) {
@@ -160,6 +177,25 @@ async function removeToken(req, res) {
   )
 }
 
+async function removeUnverifiedToken(req, res) {
+  const {
+    cookies: {
+      [jwTokenCookieName]: accessToken,
+      [jwRefreshTokenCookieName]: refreshToken,
+    },
+  } = req
+
+  const foundToken = refreshTokens.find(token => token === refreshToken)
+
+  removeRefreshToken(refreshToken)
+  res = setJwtCookie(res, jwTokenCookieName, "", new Date(), true)
+  res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
+
+  if (!foundToken) return res.sendStatus(204)
+  else return res.status(200).send("DELETED")
+
+}
+
 // helpers
 function createTokens(user) {
   return [createAccessToken(user), createRefreshToken(user)]
@@ -182,9 +218,9 @@ function createRefreshToken(user) {
 }
 function reduceUserData(user) {
   return {
-    email: user.email,
-    username: user.username,
-    _id: user._id,
+    email: user && user.email,
+    username: user && user.username,
+    _id: user && user._id,
   }
 }
 
