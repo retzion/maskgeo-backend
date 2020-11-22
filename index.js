@@ -21,6 +21,7 @@ app.use(
       "http://www.maskforecast.com",
     ],
     credentials: true,
+    exposedHeaders: 'Authorization',
   })
 )
 app.use(cookieParser())
@@ -35,7 +36,7 @@ app.use((req, res, next) => {
   if (!validApiKeys.includes(apiKey))
     return apiError('HTTP header "API-KEY" was not found.', res)
 
-  const secure = req.headers.origin && req.headers.origin.includes("https://")
+  const secure = false//req.headers.origin && req.headers.origin.includes("https://")
   const accessControlRequestHeaders = secure
     ? ["Access-Control-Request-Headers", "*; SameSite=None; Secure"]
     : ["Access-Control-Request-Headers", "*; SameSite=Lax"]
@@ -44,11 +45,11 @@ app.use((req, res, next) => {
   res.header(...accessControlRequestHeaders)
   res.header("Access-Control-Allow-Headers", "*")
   res.header("Access-Control-Allow-Origin", req.headers.origin)
-  res.header("Referrer-Policy", "origin-when-cross-origin")
+  // res.header("Referrer-Policy", "origin-when-cross-origin")
   res.header("Access-Control-Allow-Credentials", "true")
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, HEAD, PUT, DELETE")
   res.cookie("api-version", version)
-  
+
   next()
 })
 
