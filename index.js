@@ -21,7 +21,7 @@ app.use(
       "http://www.maskforecast.com",
     ],
     credentials: true,
-    exposedHeaders: 'Authorization',
+    // exposedHeaders: 'Authorization',
   })
 )
 app.use(cookieParser())

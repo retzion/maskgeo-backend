@@ -35,7 +35,7 @@ function authenticateToken(req, res, next) {
       [jwTokenCookieName]: token,
       [jwRefreshTokenCookieName]: refreshToken,
     },
-    headers: { authorization },
+    headers: { authorization = "" },
   } = req
   auth = token || authorization.split(" ")[1]
   if (!auth && !refreshToken) return res.sendStatus(403)
@@ -61,7 +61,7 @@ function authenticateToken(req, res, next) {
 
       // return the the access token as a clear cookie
       /** @TODO Go back to using HTTPOnly when devugged */
-      res = setJwtCookie(res, jwTokenCookieName, accessToken)
+      res = setJwtCookie(res, jwTokenCookieName, accessToken, null, true)
     }
     return next()
   })
@@ -94,7 +94,7 @@ async function getToken(req, res) {
   const [accessToken, refreshToken] = createTokens(user)
 
   // return the refresh tokens as httponly cookies
-  res = setJwtCookie(res, jwTokenCookieName, accessToken)
+  res = setJwtCookie(res, jwTokenCookieName, accessToken, null, true)
   res = setJwtCookie(res, jwRefreshTokenCookieName, refreshToken, null, true)
   return res.send({ accessToken, refreshToken, user })
 }
@@ -139,7 +139,7 @@ async function removeToken(req, res) {
           const foundToken = refreshTokens.find(token => token === refreshToken)
 
           removeRefreshToken(refreshToken)
-          res = setJwtCookie(res, jwTokenCookieName, "", new Date())
+          res = setJwtCookie(res, jwTokenCookieName, "", new Date(), true)
           res = setJwtCookie(
             res,
             jwRefreshTokenCookieName,
