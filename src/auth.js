@@ -76,7 +76,7 @@ function setJwtCookie(res, cookieName, token, expire) {
   expires.setMilliseconds(milliseconds)
   res.cookie(cookieName, token, {
     expires,
-    httpOnly: true,
+    httpOnly: cookieName === jwRefreshTokenCookieName,
     sameSite: secure ? "None" : "Lax",
     secure,
   })
