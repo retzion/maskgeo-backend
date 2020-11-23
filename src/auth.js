@@ -40,6 +40,13 @@ function authenticateToken(req, res, next) {
     headers: { authorization = "" },
   } = req
   auth = accessToken || authorization.split(" ")[1]
+  console.log(
+    req.headers,
+    authorization,
+    accessToken,
+    refreshToken,
+    auth
+  )
   req.jwtData = { apiVersion }
 
   if (req.method === 'DELETE') {
