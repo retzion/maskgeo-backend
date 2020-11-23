@@ -32,23 +32,23 @@ module.exports = async (req, res) => {
       .catch(() => undefined)
     const throttle = new Date()
     throttle.setDate(throttle.getDate() - 1)
-    if (existingReview && existingReview.timestamp > throttle)
+    if (existingReview && existingReview.timestamp > throttle) {
       promise.resolve({
+        status: 405,
         error: "You may write one review for a each location once per day.",
       })
-    else {
+    } else {
       existingReview = await reviewCollection.insertOne(review).catch(e => {
         console.error(e)
-        promise.resolve({ error: "Error creating review." })
+        promise.resolve({ status: 400, error: "Error creating review." })
       })
     }
     if (existingReview) promise.resolve(review)
-    else promise.resolve({ error: "Error creating review." })
+    else promise.resolve({ status: 400, error: "Error posting review." })
   }
 
   // db call
   const savedReview = await mongoConnect(fnRateAndReview)
 
-  if (savedReview.error) return res.status(405).send(savedReview)
-  else return res.send(savedReview)
+  return res.send(savedReview)
 }
