@@ -8,8 +8,31 @@ const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 
 const { version } = require("./package.json")
+const { appEnvironment } = require("./config")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
+
+// custom error logging to db
+const consoleError = console.error
+console.error = function (err) {
+  let error =
+    typeof err === "object"
+      ? {
+          message: err.message,
+          stack: err.stack,
+        }
+      : {
+          message: err,
+        }
+
+  consoleError(err)
+  api.logError({
+    error,
+    appEnvironment,
+    timestamp: new Date(),
+    version,
+  })
+}
 
 // middleware
 app.use(express.json())
@@ -36,7 +59,7 @@ app.use((req, res, next) => {
   if (!validApiKeys.includes(apiKey))
     return apiError('HTTP header "API-KEY" was not found.', res)
 
-  const secure = false//req.headers.origin && req.headers.origin.includes("https://")
+  const secure = false //req.headers.origin && req.headers.origin.includes("https://")
   const accessControlRequestHeaders = secure
     ? ["Access-Control-Request-Headers", "*; SameSite=None; Secure"]
     : ["Access-Control-Request-Headers", "*; SameSite=Lax"]
@@ -47,7 +70,10 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin)
   // res.header("Referrer-Policy", "origin-when-cross-origin")
   res.header("Access-Control-Allow-Credentials", "true")
-  res.header("Access-Control-Allow-Methods", "GET, OPTIONS, POST, HEAD, PUT, DELETE")
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, OPTIONS, POST, HEAD, PUT, DELETE"
+  )
   res.header("X-API-Version", version)
 
   next()

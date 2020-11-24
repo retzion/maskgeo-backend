@@ -3,6 +3,12 @@ const auth = require("../auth")
 const reviews = require("./Reviews")
 const user = require("./User")
 
+function logError(payload) {
+  mongoConnect(async db => {
+    await db.collection("Errors").insertOne(payload)
+  })
+}
+
 /**
  * @title testConnection
  *
@@ -67,6 +73,7 @@ module.exports = {
   fetchReviews: reviews.fetchReviews,
   getToken,
   getTokenFromMagicLink: user.getTokenFromMagicLink,
+  logError,
   postReview: reviews.postReview,
   removeToken: auth.removeToken,
   requestMagicLoginLink: user.requestMagicLoginLink,

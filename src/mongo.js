@@ -20,7 +20,7 @@ module.exports = {
       try {
         const mongo = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
         mongo.connect(async (err) => {
-          assert.equal(null, err)
+          assert.strictEqual(null, err)
       
           const db = mongo.db(dbName)
           const promise = { resolve, reject }
