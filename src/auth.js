@@ -60,6 +60,7 @@ function authenticateToken(req, res, next) {
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
       // the access token cannot be verified so we validate the refresh token
+      console.log("the access token cannot be verified so we validate the refresh token", refreshToken)
       jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
