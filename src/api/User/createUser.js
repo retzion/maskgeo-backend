@@ -1,3 +1,4 @@
+const { websiteSettings } = require("../../../config")
 const { sendMail } = require("../../util")
 const { mongoConnect } = require("../../mongo")
 const createMagicLinkAndHash = require("./createMagicLinkAndHash")
@@ -72,6 +73,7 @@ module.exports = async (req, res) => {
         link: `${req.headers.origin}/token/${magicLinkToken}`,
         buttonBackgroundColor: "cornflowerblue",
         buttonTextColor: "#ffffff",
+        websiteOneWordName: websiteSettings.oneWordName,
       })
       res.sendStatus(200)
     }

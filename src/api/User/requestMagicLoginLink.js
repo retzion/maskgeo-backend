@@ -1,3 +1,4 @@
+const { websiteSettings } = require("../../../config")
 const { ObjectID, mongoConnect } = require("../../mongo")
 const { sendMail } = require("../../util")
 const createMagicLinkAndHash = require("./createMagicLinkAndHash")
@@ -43,7 +44,6 @@ module.exports = async (req, res) => {
     updatedUser.result.nModified === 1 &&
     updatedUser.result.ok === 1
   ) {
-
     // send response
     /** @DEV Create and email a magic link containing a token to fetch a JWT */
     sendMail(email, "MaskForecast Login Link", "magic-link", {
@@ -53,6 +53,7 @@ module.exports = async (req, res) => {
       link: `${req.headers.origin}/token/${magicLinkToken}`,
       buttonBackgroundColor: "cornflowerblue",
       buttonTextColor: "#ffffff",
+      websiteOneWordName: websiteSettings.oneWordName,
     })
     res.send()
   } else res.sendStatus(400)

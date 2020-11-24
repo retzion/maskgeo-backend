@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken")
 
 const { version: apiVersion } = require("../package.json")
+const { mongoConnect, ObjectID } = require("./mongo")
 
 // config
 const accessMinuteLifespan = 60 * 72
@@ -31,7 +32,11 @@ function removeRefreshToken(refreshToken) {
 }
 
 // middleware function for authorization
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
+  const failedError = {
+    status: 403,
+    error: "Authentication failed.",
+  }
   const {
     cookies: {
       [jwTokenCookieName]: accessToken,
@@ -44,11 +49,11 @@ function authenticateToken(req, res, next) {
     authorization,
     accessToken,
     refreshToken,
-    auth
+    auth,
   })
   req.jwtData = { apiVersion }
 
-  if (req.method === 'DELETE') {
+  if (req.method === "DELETE") {
     res = setJwtCookie(res, jwTokenCookieName, "", new Date(), true)
     res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
     // res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
@@ -60,12 +65,16 @@ function authenticateToken(req, res, next) {
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
       // the access token cannot be verified so we validate the refresh token
-      console.log("the access token cannot be verified so we validate the refresh token", refreshToken)
+      console.log(
+        "the access token cannot be verified so we validate the refresh token",
+        refreshToken
+      )
       jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
-          if (err) return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
+          if (err)
+            return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
           req.jwtData = {
             ...req.jwtData,
             user: refreshTokenUser && reduceUserData(refreshTokenUser),
@@ -77,17 +86,34 @@ function authenticateToken(req, res, next) {
         ...req.jwtData,
         user: user && reduceUserData(user),
       }
+  })
+  if (req.jwtData.user) {
+    // verify user in db
+    const fnFindUser = async (db, promise) => {
+      const userCollection = db.collection("User")
+      let existingUser = await userCollection
+        .findOne({
+          _id: ObjectID(req.jwtData.user._id),
+          username: req.jwtData.user.username,
+          email: req.jwtData.user.email.toLowerCase(),
+        })
+        .catch(() => undefined)
 
-    if (req.jwtData.user) {
+      if (existingUser) promise.reject()
+      else promise.resolve(existingUser)
+    }
+    const dbUser = await mongoConnect(fnFindUser)
+    console.log({dbUser})
+    if (!dbUser) res.send(failedError)
+    else {
       // create a fresh token
       const [newAccessToken, newRefreshToken] = createTokens(req.jwtData.user)
       req.jwtData.accessToken = newAccessToken
       req.jwtData.refreshToken = newRefreshToken
-
-      /** @TODO Go back to using HTTPOnly when devugged */
+      return next()
     }
-    return next()
-  })
+  }
+  else res.send(failedError)
 }
 
 // core token functions
@@ -200,7 +226,6 @@ async function removeUnverifiedToken(req, res) {
 
   if (!foundToken) return res.sendStatus(204)
   else return res.status(200).send("DELETED")
-
 }
 
 // helpers
