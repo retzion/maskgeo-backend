@@ -5,7 +5,7 @@ const user = require("./User")
 
 function logError(payload) {
   mongoConnect(async db => {
-    await db.collection("Errors").insertOne(payload)
+    await db.collection("Error").insertOne(payload)
   })
 }
 
