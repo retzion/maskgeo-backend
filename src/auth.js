@@ -34,6 +34,7 @@ function removeRefreshToken(refreshToken) {
 // middleware function for authorization
 async function authenticateToken(req, res, next) {
   const failedError = {
+    apiVersion,
     status: 403,
     error: "Authentication failed.",
   }
