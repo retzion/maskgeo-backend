@@ -81,7 +81,6 @@ app.use((req, res, next) => {
 
 // error handling
 apiError = (err, res) => {
-  console.error(err)
   res.status(500)
   res.send({ error: err.message || err })
 }
