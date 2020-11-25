@@ -89,8 +89,7 @@ async function authenticateToken(req, res, next) {
         })
         .catch(() => undefined)
 
-      if (!existingUser) promise.reject()
-      else promise.resolve(existingUser)
+      promise.resolve(existingUser)
     }
     const dbUser = await mongoConnect(fnFindUser)
     if (dbUser) {
@@ -100,6 +99,7 @@ async function authenticateToken(req, res, next) {
       req.jwtData.refreshToken = newRefreshToken
       return next()
     }
+    else return res.send(failedError)
   }
 }
 
