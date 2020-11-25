@@ -53,21 +53,17 @@ async function authenticateToken(req, res, next) {
   }
 
   if (!auth && !refreshToken)
-    return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
+    return res.send(failedError)
 
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
       // the access token cannot be verified so we validate the refresh token
-      console.log(
-        "the access token cannot be verified so we validate the refresh token",
-        refreshToken
-      )
       jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
           if (err)
-            return res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
+            return res.send(failedError)
           req.jwtData = {
             ...req.jwtData,
             user: refreshTokenUser && reduceUserData(refreshTokenUser),
@@ -96,15 +92,14 @@ async function authenticateToken(req, res, next) {
       else promise.resolve(existingUser)
     }
     const dbUser = await mongoConnect(fnFindUser)
-    if (!dbUser) res.send(failedError)
-    else {
+    if (dbUser) {
       // create a fresh token
       const [newAccessToken, newRefreshToken] = createTokens(req.jwtData.user)
       req.jwtData.accessToken = newAccessToken
       req.jwtData.refreshToken = newRefreshToken
       return next()
     }
-  } else res.send(failedError)
+  }
 }
 
 // core token functions
