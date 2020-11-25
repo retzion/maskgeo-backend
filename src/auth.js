@@ -45,18 +45,11 @@ async function authenticateToken(req, res, next) {
     headers: { authorization = "" },
   } = req
   auth = accessToken || authorization.split(" ")[1]
-  console.log({
-    authorization,
-    accessToken,
-    refreshToken,
-    auth,
-  })
   req.jwtData = { apiVersion }
 
   if (req.method === "DELETE") {
     res = setJwtCookie(res, jwTokenCookieName, "", new Date(), true)
     res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
-    // res.send({ ...req.jwtData, status: 403, error: "Forbidden" })
   }
 
   if (!auth && !refreshToken)
@@ -99,11 +92,10 @@ async function authenticateToken(req, res, next) {
         })
         .catch(() => undefined)
 
-      if (existingUser) promise.reject()
+      if (!existingUser) promise.reject()
       else promise.resolve(existingUser)
     }
     const dbUser = await mongoConnect(fnFindUser)
-    console.log({dbUser})
     if (!dbUser) res.send(failedError)
     else {
       // create a fresh token
@@ -112,8 +104,7 @@ async function authenticateToken(req, res, next) {
       req.jwtData.refreshToken = newRefreshToken
       return next()
     }
-  }
-  else res.send(failedError)
+  } else res.send(failedError)
 }
 
 // core token functions
