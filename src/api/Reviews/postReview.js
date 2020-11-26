@@ -1,22 +1,26 @@
-const { mongoConnect } = require("../../mongo")
+const { mongoConnect, ObjectID } = require("../../mongo")
 
 module.exports = async (req, res) => {
   const {
     body: { geoCoordinates, googlePlaceId, rating, review: reviewText, user },
     jwtData,
   } = req
+  const failedError = (status, error) => ({
+    status,
+    error,
+  })
 
   const valid = jwtData.user._id === user._id
+  if (!valid) res.failedError(401, "User ID mismatch.")
+
   const review = {
     geoCoordinates,
     googlePlaceId,
     rating,
     review: reviewText,
-    user,
     timestamp: new Date(),
+    user: { _id: user._id, username: user.username },
   }
-
-  if (!valid) res.status(401).send("User ID mismatch.")
 
   const queryKey = {
     "geoCoordinates.lat": geoCoordinates.lat,
@@ -35,7 +39,7 @@ module.exports = async (req, res) => {
     if (existingReview && existingReview.timestamp > throttle) {
       promise.resolve({
         status: 405,
-        error: "You may write one review for a each location once per day.",
+        error: "You may only rate and review each location once and you can only edit this rating/review once per day.",
       })
     } else {
       existingReview = await reviewCollection.insertOne(review).catch(e => {
@@ -44,7 +48,7 @@ module.exports = async (req, res) => {
       })
     }
     if (existingReview) promise.resolve(review)
-    else promise.resolve({ status: 400, error: "Error posting review." })
+    else promise.resolve(failedError(400, "Error posting review."))
   }
 
   // db call
