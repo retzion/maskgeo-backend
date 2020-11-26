@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
         newUser = { email, username, magicLinkTokenHash, magicLinkExpires }
         existingUser = await userCollection.insertOne(newUser).catch(e => {
-          console.error(e)
+          console.error(e, req)
           promise.resolve({ error: "Error creating user." })
         })
       }
@@ -59,7 +59,9 @@ module.exports = async (req, res) => {
     }
 
     // db call
-    const createdUser = await mongoConnect(fnCreateUser).catch(console.error)
+    const createdUser = await mongoConnect(fnCreateUser).catch(c => {
+      console.error(c, req)
+    })
 
     // send response
     if (!createdUser) return res.sendStatus(500)
@@ -78,7 +80,7 @@ module.exports = async (req, res) => {
       res.sendStatus(200)
     }
   } catch (err) {
-    console.error(err)
+    console.error(err, req)
     return res.status(500).send(err)
   }
 }

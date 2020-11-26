@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
           { $set: { magicLinkTokenHash, magicLinkExpires } }
         )
         .catch(e => {
-          console.error(e)
+          console.error(e, req)
           promise.resolve()
         })
       if (updated) promise.resolve(updated)

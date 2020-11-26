@@ -1,6 +1,7 @@
 const { mongoConnect, ObjectID } = require("../../mongo")
 
 module.exports = async (req, res) => {
+  console.error(new Error("testing error logging"), req)
   const {
     body: { geoCoordinates, googlePlaceId, rating, review: reviewText, user },
     jwtData,
@@ -43,7 +44,7 @@ module.exports = async (req, res) => {
       })
     } else {
       existingReview = await reviewCollection.insertOne(review).catch(e => {
-        console.error(e)
+        console.error(e, req)
         promise.resolve({ status: 400, error: "Error creating review." })
       })
     }

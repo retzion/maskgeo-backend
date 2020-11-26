@@ -14,7 +14,8 @@ const { authenticateToken } = require("./src/auth")
 
 // custom error logging to db
 const consoleError = console.error
-console.error = function (err) {
+console.error = function (err, req) {
+  const appVersion = req && req.headers ? req.headers["x-app-version"] : null
   let error =
     typeof err === "object"
       ? {
@@ -29,6 +30,7 @@ console.error = function (err) {
   api.logError({
     error,
     appEnvironment,
+    appVersion,
     timestamp: new Date(),
     version,
   })
