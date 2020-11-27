@@ -1,7 +1,6 @@
 const { mongoConnect, ObjectID } = require("../../mongo")
 
 module.exports = async (req, res) => {
-  console.error(new Error("testing error logging"), req)
   const {
     body: { geoCoordinates, googlePlaceId, rating, review: reviewText, user },
     jwtData,
