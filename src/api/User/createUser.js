@@ -50,10 +50,11 @@ module.exports = async (req, res) => {
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
         newUser = {
           email,
-          username,
+          lastSession: new Date(),
           magicLinkTokenHash,
           magicLinkExpires,
           userAgent: req.headers["user-agent"],
+          username,
         }
         existingUser = await userCollection.insertOne(newUser).catch(e => {
           console.error(e, req)

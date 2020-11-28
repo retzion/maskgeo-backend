@@ -11,6 +11,7 @@ const { version } = require("./package.json")
 const { appEnvironment } = require("./config")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
+const { ObjectID } = require("./src/mongo")
 
 // custom error logging to db
 const consoleError = console.error
@@ -116,13 +117,16 @@ app.get("/jwt/:token", api.getTokenFromMagicLink)
 app.head("/jwt", authenticateToken, api.verifyToken)
 
 // get data from a jwt
-app.get("/data", authenticateToken, (req, res) => {
+app.get("/data", authenticateToken, async (req, res) => {
   if (req.jwtData) {
     // log user agent used by authenticated user
-    api.updateUserUserAgent(
-      { "user._id": req.jwtData.user._id },
-      { userAgent: req.headers["user-agent"] }
-    )
+    api.updateUser({
+      query: { _id: ObjectID(req.jwtData.user._id) },
+      updates: {
+        userAgent: req.headers["user-agent"],
+        lastSession: new Date(),
+      },
+    })
   }
   res.send(req.jwtData)
 })

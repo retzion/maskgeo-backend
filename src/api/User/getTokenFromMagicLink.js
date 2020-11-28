@@ -1,7 +1,7 @@
 const crypto = require("crypto")
 const { mongoConnect } = require("../../mongo")
 const { getToken } = require("../../auth")
-const updateUserUserAgent = require("./updateUserUserAgent")
+const updateUser = require("./updateUser")
 
 module.exports = async (req, res) => {
   const { token } = req.params
@@ -28,7 +28,13 @@ module.exports = async (req, res) => {
       if (existingUser.magicLinkExpires < new Date())
         return res.status(403).send("Token has expired.")
       else {
-        updateUserUserAgent({ findQuery, userAgent: req.headers["user-agent"] })
+        updateUser({
+          query: findQuery,
+          updates: {
+            userAgent: req.headers["user-agent"],
+            lastSession: new Date(),
+          },
+        })
         return getToken(
           {
             ...req,
