@@ -44,7 +44,8 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://maskgeo.herokuapp.com",
-      "http://www.maskforecast.com",
+      "https://maskforecast.com",
+      "https://www.maskforecast.com",
     ],
     credentials: true,
     // exposedHeaders: 'Authorization',
