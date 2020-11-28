@@ -1,6 +1,7 @@
 const crypto = require("crypto")
 const { mongoConnect } = require("../../mongo")
 const { getToken } = require("../../auth")
+const updateUserUserAgent = require("./updateUserUserAgent")
 
 module.exports = async (req, res) => {
   const { token } = req.params
@@ -14,17 +15,20 @@ module.exports = async (req, res) => {
   } catch (e) {}
   if (!magicLinkTokenHash) res.status(403).send("Token was invalid.")
 
-  // db function
+  const findQuery = { magicLinkTokenHash }
+
+  // db function to search for token hash
   const fnFindUserByToken = async (db, promise) => {
     const userCollection = db.collection("User")
     let existingUser = await userCollection
-      .findOne({ magicLinkTokenHash })
+      .findOne(findQuery)
       .catch(() => undefined)
 
     if (existingUser) {
       if (existingUser.magicLinkExpires < new Date())
         return res.status(403).send("Token has expired.")
-      else
+      else {
+        updateUserUserAgent({ findQuery, userAgent: req.headers["user-agent"] })
         return getToken(
           {
             ...req,
@@ -36,6 +40,7 @@ module.exports = async (req, res) => {
           },
           res
         )
+      }
     } else res.status(403).send("Token was invalid.")
   }
 

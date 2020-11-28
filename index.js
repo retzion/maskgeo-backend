@@ -117,6 +117,13 @@ app.head("/jwt", authenticateToken, api.verifyToken)
 
 // get data from a jwt
 app.get("/data", authenticateToken, (req, res) => {
+  if (req.jwtData) {
+    // log user agent used by authenticated user
+    api.updateUserUserAgent(
+      { "user._id": req.jwtData.user._id },
+      { userAgent: req.headers["user-agent"] }
+    )
+  }
   res.send(req.jwtData)
 })
 

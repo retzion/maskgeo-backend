@@ -78,5 +78,6 @@ module.exports = {
   removeToken: auth.removeToken,
   requestMagicLoginLink: user.requestMagicLoginLink,
   testConnection,
+  updateUserUserAgent: user.updateUserUserAgent,
   verifyToken: auth.verifyToken,
 }

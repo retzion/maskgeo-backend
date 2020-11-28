@@ -48,7 +48,13 @@ module.exports = async (req, res) => {
       } else {
         const magicLinkExpires = new Date()
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
-        newUser = { email, username, magicLinkTokenHash, magicLinkExpires }
+        newUser = {
+          email,
+          username,
+          magicLinkTokenHash,
+          magicLinkExpires,
+          userAgent: req.headers["user-agent"],
+        }
         existingUser = await userCollection.insertOne(newUser).catch(e => {
           console.error(e, req)
           promise.resolve({ error: "Error creating user." })

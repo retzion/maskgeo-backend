@@ -38,6 +38,7 @@ async function authenticateToken(req, res, next) {
     status: 403,
     error: "Authentication failed.",
   }
+
   const {
     cookies: {
       [jwTokenCookieName]: accessToken,
@@ -53,8 +54,7 @@ async function authenticateToken(req, res, next) {
     res = setJwtCookie(res, jwRefreshTokenCookieName, "", new Date(), true)
   }
 
-  if (!auth && !refreshToken)
-    return res.send(failedError)
+  if (!auth && !refreshToken) return res.send(failedError)
 
   jwt.verify(auth, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
@@ -63,8 +63,7 @@ async function authenticateToken(req, res, next) {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
         (err, refreshTokenUser) => {
-          if (err)
-            return res.send(failedError)
+          if (err) return res.send(failedError)
           req.jwtData = {
             ...req.jwtData,
             user: refreshTokenUser && reduceUserData(refreshTokenUser),
@@ -77,6 +76,7 @@ async function authenticateToken(req, res, next) {
         user: user && reduceUserData(user),
       }
   })
+
   if (req.jwtData.user) {
     // verify user in db
     const fnFindUser = async (db, promise) => {
@@ -98,8 +98,7 @@ async function authenticateToken(req, res, next) {
       req.jwtData.accessToken = newAccessToken
       req.jwtData.refreshToken = newRefreshToken
       return next()
-    }
-    else return res.send(failedError)
+    } else return res.send(failedError)
   }
 }
 

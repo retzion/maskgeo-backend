@@ -1,6 +1,6 @@
 {
   "name": "maskgeo-backend",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "repository": "https://github.com/retzion/maskgeo-backend.git",
   "description": "",
   "main": "index.js",
