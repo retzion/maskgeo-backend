@@ -50,7 +50,6 @@ module.exports = async (req, res) => {
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
         newUser = {
           email,
-          lastSession: new Date(),
           magicLinkTokenHash,
           magicLinkExpires,
           userAgent: req.headers["user-agent"],
