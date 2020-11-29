@@ -44,6 +44,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://maskgeo.herokuapp.com",
+      "https://staging-maskgeo.herokuapp.com",
       "https://maskforecast.com",
       "https://www.maskforecast.com",
     ],
