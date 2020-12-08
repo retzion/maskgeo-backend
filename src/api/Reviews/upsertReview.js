@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
   const valid = jwtData.user._id === user._id
   if (!valid) res.failedError(401, "User ID mismatch.")
 
-  const review = {
+  const postedReview = {
     geoCoordinates,
     googlePlaceId,
     rating,
@@ -27,6 +27,8 @@ module.exports = async (req, res) => {
     "user._id": user._id,
   }
 
+  let lastReview
+
   // db function
   const fnRateAndReview = async (db, promise) => {
     const reviewCollection = db.collection("Review")
@@ -37,19 +39,19 @@ module.exports = async (req, res) => {
 
     if (existingReviews.length) {
       const sorted = existingReviews.sort((a, b) => b.timestamp - a.timestamp)
-      const userReview = sorted.shift()
+      lastReview = sorted.shift()
 
       const throttle = new Date()
       throttle.setDate(throttle.getDate() - 1)
 
       // check that it's been 24 hours since last post
-      if (userReview.timestamp > throttle)
+      if (lastReview.timestamp > throttle)
         promise.resolve({
           status: 405,
           error:
             "You may only rate and review each location once and you can only edit this rating/review once per day.",
         })
-      else {
+      else if (existingReviews.length > 1) {
         // Remove the user's reviews
         await reviewCollection.deleteMany(queryKey).catch(e => {
           console.error(e, req)
@@ -59,11 +61,13 @@ module.exports = async (req, res) => {
     }
 
     // Save the posted review
-    const postedReview = await reviewCollection.insertOne(review).catch(e => {
-      console.error(e, req)
-      promise.resolve({ status: 400, error: "Error creating review." })
-    })
-    if (postedReview) promise.resolve(review)
+    const upsertedReview = await reviewCollection
+      .updateOne(queryKey, { $set: postedReview }, { upsert: true })
+      .catch(e => {
+        console.error(e, req)
+        promise.resolve({ status: 400, error: "Error creating review." })
+      })
+    if (upsertedReview) promise.resolve(postedReview)
     else promise.resolve(failedError(400, "Error posting review."))
   }
 
