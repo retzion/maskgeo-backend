@@ -1,7 +1,7 @@
 const fetchReviews = require("./fetchReviews")
-const postReview = require("./postReview")
+const upsertReview = require("./upsertReview")
 
 module.exports = {
   fetchReviews,
-  postReview,
+  upsertReview,
 }

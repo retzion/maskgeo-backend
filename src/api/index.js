@@ -74,7 +74,7 @@ module.exports = {
   getToken,
   getTokenFromMagicLink: user.getTokenFromMagicLink,
   logError,
-  postReview: reviews.postReview,
+  upsertReview: reviews.upsertReview,
   removeToken: auth.removeToken,
   requestMagicLoginLink: user.requestMagicLoginLink,
   testConnection,

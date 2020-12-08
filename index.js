@@ -140,7 +140,7 @@ app.delete("/jwt", authenticateToken, api.removeToken)
 app.get("/login/:email", api.requestMagicLoginLink)
 
 // post a rating and review
-app.post("/review", authenticateToken, api.postReview)
+app.post("/review", authenticateToken, api.upsertReview)
 
 // get ratings and reviews for a location
 app.get("/reviews", api.fetchReviews)
