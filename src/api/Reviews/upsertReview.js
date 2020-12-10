@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
         // Remove the user's reviews
         await reviewCollection.deleteMany(queryKey).catch(e => {
           console.error(e, req)
-          promise.resolve(failedError(400, "Error posting review."))
+          promise.resolve(failedError(400, "Error editing review."))
         })
       }
     }
@@ -68,11 +68,14 @@ module.exports = async (req, res) => {
         promise.resolve({ status: 400, error: "Error creating review." })
       })
     if (upsertedReview) promise.resolve(postedReview)
-    else promise.resolve(failedError(400, "Error posting review."))
+    else promise.resolve(failedError(400, "Error saving review."))
   }
 
   // db call
-  const savedReview = await mongoConnect(fnRateAndReview)
+  const savedReview = await mongoConnect(fnRateAndReview).catch(e => {
+    console.error(e, req)
+    promise.resolve({ status: 400, error: "Error posting review." })
+  })
 
   return res.send(savedReview)
 }
