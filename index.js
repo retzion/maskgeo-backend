@@ -34,6 +34,7 @@ console.error = function (err, req) {
     appVersion,
     timestamp: new Date(),
     version,
+    backend: true,
   })
 }
 
@@ -107,6 +108,16 @@ app.get("/test/:param1/:param2", authenticateToken, async (req, res) => {
   } catch (err) {
     return apiError(err, res)
   }
+})
+
+// log client error
+app.post("/error", (req, res) => {
+  api.logError({
+    ...req.body,
+    timestamp: new Date(),
+    frontend: true,
+  })
+  res.sendStatus(200)
 })
 
 // create user and get a magic link in an email
