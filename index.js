@@ -7,8 +7,8 @@ const port = process.env.PORT || 3000
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 
-const { version } = require("./package.json")
-const { appEnvironment } = require("./config")
+const { version: apiVersion } = require("./package.json")
+const { appEnvironment: environment } = require("./config")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
 const { ObjectID } = require("./src/mongo")
@@ -30,10 +30,10 @@ console.error = function (err, req) {
   consoleError(err)
   api.logError({
     error,
-    appEnvironment,
+    environment,
     appVersion,
     timestamp: new Date(),
-    version,
+    apiVersion,
     backend: true,
   })
 }
@@ -80,7 +80,7 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, OPTIONS, POST, HEAD, PUT, DELETE"
   )
-  res.header("X-API-Version", version)
+  res.header("X-API-Version", apiVersion)
 
   next()
 })
@@ -114,6 +114,8 @@ app.get("/test/:param1/:param2", authenticateToken, async (req, res) => {
 app.post("/error", (req, res) => {
   api.logError({
     ...req.body,
+    apiVersion,
+    environment,
     timestamp: new Date(),
     frontend: true,
   })
@@ -157,4 +159,4 @@ app.post("/review", authenticateToken, api.upsertReview)
 app.get("/reviews", api.fetchReviews)
 
 // init
-app.listen(port, () => console.log(`v${version} running on port ${port}!`))
+app.listen(port, () => console.log(`v${apiVersion} running on port ${port}!`))
