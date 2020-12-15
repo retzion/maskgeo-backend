@@ -64,7 +64,15 @@ module.exports = async (req, res) => {
         console.error(e, req)
         promise.resolve({ status: 400, error: "Error creating review." })
       })
-    if (upsertedReview) promise.resolve(postedReview)
+    if (upsertedReview)
+      promise.resolve({
+        ...postedReview,
+        _id:
+          (lastReview && lastReview._id) ||
+          (upsertedReview &&
+            upsertedReview.upsertedId &&
+            upsertedReview.upsertedId._id),
+      })
     else promise.resolve(failedError(400, "Error saving review."))
   }
 
