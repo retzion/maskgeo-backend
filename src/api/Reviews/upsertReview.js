@@ -1,14 +1,11 @@
 const { mongoConnect, ObjectID } = require("../../mongo")
+const failedError = require("../failedError")
 
 module.exports = async (req, res) => {
   const {
     body: { geoCoordinates, googlePlaceId, rating, review: reviewText, user },
     jwtData,
   } = req
-  const failedError = (status, error) => ({
-    status,
-    error,
-  })
 
   const valid = jwtData.user._id === user._id
   if (!valid) res.failedError(401, "User ID mismatch.")
