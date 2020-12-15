@@ -4,14 +4,21 @@ const cors = require("cors")
 const express = require("express")
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
+const fs = require("fs")
 const gm = require("gm")
 const request = require("request")
 
 const { version: apiVersion } = require("./package.json")
-const { appEnvironment: environment } = require("./config")
+const {
+  appEnvironment: environment,
+  apiDomain,
+  redirectDomain,
+  websiteSettings,
+} = require("./config")
 const api = require("./src/api")
 const { authenticateToken } = require("./src/auth")
 const { ObjectID } = require("./src/mongo")
+const { placeDetails } = require("./src/google")
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -179,6 +186,9 @@ app.get("/wm/:url", function (req, res) {
   convertImage(request.get(url)).pipe(res)
 })
 
+// static html index file for seo
+app.get("/r/:reference", customIndexFile)
+
 // init
 app.listen(port, () => console.log(`v${apiVersion} running on port ${port}!`))
 
@@ -189,4 +199,42 @@ function convertImage(inputStream) {
     .composite("src/watermark.png")
     .geometry("+60+60")
     .stream()
+}
+
+function customIndexFile(req, res) {
+  const { reference } = req.params
+
+  fs.readFile(
+    __dirname + "/src/index.html",
+    "utf8",
+    async function (err, data) {
+      if (err) throw err
+
+      // fetch location details from google
+      const { result: details } = await placeDetails(reference)
+      if (!details) return res.sendStatus(404)
+
+      const {
+        formatted_address: address,
+        name,
+        photos = [],
+        vicinity,
+      } = details
+      const description = `Check out the Mask Forecast for ${name}, ${address}`
+      const photoReference = photos[0] && photos[0]["photo_reference"]
+      const watermarkedImageUrl = `${apiDomain}/gi/${photoReference}`
+      const pageTitle = `Mask Forecast for ${name}, ${vicinity}`
+      const redirectUrl = `${redirectDomain}/location/${reference}?details`
+
+      // replace template tags
+      data = data.replaceAll("%DESCRIPTION%", description)
+      data = data.replaceAll("%FRIENDLY_NAME%", websiteSettings.friendlyName)
+      data = data.replaceAll("%IMAGE_URL%", watermarkedImageUrl)
+      data = data.replaceAll("%PAGE_TITLE%", pageTitle)
+      data = data.replaceAll("%PUBLIC_URL%", redirectDomain)
+      data = data.replaceAll("%REDIRECT_URL%", redirectUrl)
+
+      res.send(data)
+    }
+  )
 }

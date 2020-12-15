@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/img/mask.png" />
+    <meta
+      name="viewport"
+      content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimal-ui"
+    />
+    <meta name="apple-mobile-web-app-title" content="%FRIENDLY_NAME%" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/img/mask.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="76x76"
+      href="%PUBLIC_URL%/img/mask.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="120x120"
+      href="%PUBLIC_URL%/img/mask.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="152x152"
+      href="%PUBLIC_URL%/img/mask.png"
+    />
+
+    <meta name="theme-color" content="beige" />
+
+    <title>%PAGE_TITLE%</title>
+
+    <meta name="description" content="%DESCRIPTION%" />
+    <meta property="og:title" content="%PAGE_TITLE%" />
+    <meta property="og:description" content="%DESCRIPTION%" />
+    <meta property="og:image" content="%IMAGE_URL%" />
+    <meta property="og:url" content="%PUBLIC_URL%" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="%IMAGE_URL%" />
+
+    <style>
+      body {
+        display: grid;
+        place-items: center center;
+        height: 100vh;
+      }
+      .loader {
+        border: 6px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 6px solid #666;
+        width: 45px;
+        height: 45px;
+        -webkit-animation: spin 1s linear infinite; /* Safari */
+        animation: spin 1s linear infinite;
+      }
+
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <script>
+      window.location.href = "%REDIRECT_URL%"
+    </script>
+  </head>
+  <body>
+    <div class="loader"></div>
+  </body>
+</html>
