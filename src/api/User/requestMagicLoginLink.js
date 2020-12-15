@@ -22,10 +22,15 @@ module.exports = async (req, res) => {
       .findOne({ email: email.toLowerCase() })
       .catch(() => undefined)
     if (userData) {
+      let authTokens = userData.authTokens || []
+      authTokens = authTokens.filter(t => t.exp > new Date())
       const updated = await userCollection
         .updateOne(
           { _id: new ObjectID(userData._id) },
-          { $set: { magicLinkTokenHash, magicLinkExpires } }
+          { $set: { authTokens: [...authTokens, {
+            hex: magicLinkTokenHash,
+            exp: magicLinkExpires,
+          }] } }
         )
         .catch(e => {
           console.error(e, req)
