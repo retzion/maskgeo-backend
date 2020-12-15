@@ -2,6 +2,7 @@ const { websiteSettings } = require("../../../config")
 const { sendMail } = require("../../util")
 const { mongoConnect } = require("../../mongo")
 const createMagicLinkAndHash = require("./createMagicLinkAndHash")
+const failedError = require("../failedError")
 
 module.exports = async (req, res) => {
   try {
@@ -23,8 +24,10 @@ module.exports = async (req, res) => {
     // validate username format
     const validUserExp = new RegExp(/^([a-zA-Z0-9_]+)$/)
     const validUsername = validUserExp.test(username)
+    if (username.length < 4)
+      return res.status(422).send(failedError(422, "Usernames must be 3 characters or more."))
     if (!validUsername)
-      return res.status(422).send("Invalid characters found in username.")
+      return res.status(422).send(failedError(422, "Invalid characters found in username."))
 
     /** Insert the user */
     const userFindKey = {
