@@ -11,14 +11,14 @@ const appEnvironments = {
 const appEnvironment = appEnvironments[process.env["MG_ENV"] || "production"]
 
 const apiDomains = {
-  development: "https://maskgeo-backend.herokuapp.com",
+  development: "https://staging-maskgeo-backend.herokuapp.com",
   local: "http://localhost:3001",
   production: "https://api.maskforecast.com",
 }
 const apiDomain = apiDomains[appEnvironment]
 
 const redirectDomains = {
-  development: "https://maskgeo-frontend.herokuapp.com",
+  development: "https://staging-maskgeo-frontend.herokuapp.com",
   local: "http://localhost:3000",
   production: "https://www.maskforecast.com",
 }
