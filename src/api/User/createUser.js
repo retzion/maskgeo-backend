@@ -25,9 +25,13 @@ module.exports = async (req, res) => {
     const validUserExp = new RegExp(/^([a-zA-Z0-9_]+)$/)
     const validUsername = validUserExp.test(username)
     if (username.length < 3)
-      return res.status(422).send(failedError(422, "Usernames must be 3 characters or more."))
+      return res
+        .status(422)
+        .send(failedError(422, "Usernames must be 3 characters or more."))
     if (!validUsername)
-      return res.status(422).send(failedError(422, "Invalid characters found in username."))
+      return res
+        .status(422)
+        .send(failedError(422, "Invalid characters found in username."))
 
     /** Insert the user */
     const userFindKey = {
@@ -52,9 +56,8 @@ module.exports = async (req, res) => {
         const magicLinkExpires = new Date()
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
         newUser = {
+          authTokens: [{ hex: magicLinkToken, exp: magicLinkExpires }],
           email,
-          magicLinkTokenHash,
-          magicLinkExpires,
           userAgent: req.headers["user-agent"],
           username,
         }

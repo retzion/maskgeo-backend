@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
   } catch (e) {}
   if (!magicLinkTokenHash) res.status(403).send("Token was invalid.")
 
-  const findQuery = { magicLinkTokenHash }
+  const findQuery = { "authTokens.hex": magicLinkTokenHash }
 
   // db function to search for token hash
   const fnFindUserByToken = async (db, promise) => {
@@ -25,7 +25,10 @@ module.exports = async (req, res) => {
       .catch(() => undefined)
 
     if (existingUser) {
-      if (existingUser.magicLinkExpires < new Date())
+      const { exp } = existingUser.authTokens.find(
+        t => t.hex === magicLinkTokenHash
+      )
+      if (exp < new Date())
         return res.status(403).send("Token has expired.")
       else {
         updateUser({
