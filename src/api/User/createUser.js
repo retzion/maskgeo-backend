@@ -81,13 +81,12 @@ module.exports = async (req, res) => {
     else {
       /** @DEV Create and email a magic link containing a token to fetch a JWT */
       await sendMail(email, "Welcome to MaskForecast", "new-account", {
+        profileLink: `${req.headers.origin}/?profile`,
         email,
         username,
         expires: "in 10 minutes",
         link: `${req.headers.origin}/token/${magicLinkToken}`,
-        buttonBackgroundColor: "cornflowerblue",
-        buttonTextColor: "#ffffff",
-        websiteOneWordName: websiteSettings.oneWordName,
+        magicLinkToken,
       })
       res.sendStatus(200)
     }

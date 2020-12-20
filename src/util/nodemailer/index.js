@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer")
 const fs = require("fs")
 
-const { smtpAccount } = require("../../../config")
+const { smtpAccount, websiteSettings } = require("../../../config")
 
 const mailServerOptions = {
   ...smtpAccount,
@@ -11,6 +11,14 @@ const transporter = nodemailer.createTransport(mailServerOptions)
 
 module.exports = async (email, subject, templateName, variables) => {
   if (!email || !subject || !templateName) throw "missing parameters"
+
+  variables = {
+    ...variables,
+    buttonBackgroundColor: "cornflowerblue",
+    buttonTextColor: "#ffffff",
+    websiteFriendlyName: websiteSettings.friendlyName,
+    websiteOneWordName: websiteSettings.oneWordName,
+}
 
   const htmlFilePath = `./src/util/nodemailer/templates/${templateName}.html`
   const textFilePath = `./src/util/nodemailer/templates/${templateName}.txt`
@@ -46,4 +54,3 @@ module.exports = async (email, subject, templateName, variables) => {
     else console.log("Email sent: " + info.response)
   })
 }
-
