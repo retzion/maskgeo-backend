@@ -1,9 +1,9 @@
 const { mongoConnect } = require("../../mongo")
 
-module.exports = async ({ query, updates }) => {
-  const fnUpdateUser = async db => {
+module.exports = ({ query, updates }) => {
+  const fnUpdateUser = db => {
     const userCollection = db.collection("User")
-    return await userCollection.updateOne(query, { $set: updates })
+    return userCollection.updateOne(query, { $set: updates })
   }
   return mongoConnect(fnUpdateUser)
 }

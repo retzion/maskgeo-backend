@@ -69,15 +69,21 @@ async function checkUser(user, returnAllData) {
 }
 
 module.exports = {
-  createUser: user.createUser,
-  fetchReviews: reviews.fetchReviews,
+
+  ...auth,
+  ...reviews,
+  ...user,
+
+  // addPhoneNumber: user.addPhoneNumber,
+  // createUser: user.createUser,
+  // fetchReviews: reviews.fetchReviews,
   getToken,
-  getTokenFromMagicLink: user.getTokenFromMagicLink,
+  // getTokenFromMagicLink: user.getTokenFromMagicLink,
   logError,
-  upsertReview: reviews.upsertReview,
-  removeToken: auth.removeToken,
-  requestMagicLoginLink: user.requestMagicLoginLink,
+  // upsertReview: reviews.upsertReview,
+  // removeToken: auth.removeToken,
+  // requestMagicLoginLink: user.requestMagicLoginLink,
   testConnection,
-  updateUser: user.updateUser,
-  verifyToken: auth.verifyToken,
+  // updateUser: user.updateUser,
+  // verifyToken: auth.verifyToken,
 }

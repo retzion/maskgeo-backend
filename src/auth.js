@@ -85,7 +85,7 @@ async function authenticateToken(req, res, next) {
         .findOne({
           _id: ObjectID(req.jwtData.user._id),
           username: req.jwtData.user.username,
-          email: req.jwtData.user.email.toLowerCase(),
+          email: req.jwtData.user.email && req.jwtData.user.email.toLowerCase(),
         })
         .catch(() => undefined)
 
@@ -237,6 +237,9 @@ function createRefreshToken(user) {
 function reduceUserData(user) {
   return {
     email: user && user.email,
+    emailVerified: user && user.emailVerified,
+    phone: user && user.phone,
+    phoneVerified: user && user.phoneVerified,
     username: user && user.username,
     _id: user && user._id,
   }

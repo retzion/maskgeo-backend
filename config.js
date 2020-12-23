@@ -1,6 +1,7 @@
 const websiteSettings = {
   friendlyName: "Mask Forecast",
   oneWordName: "MaskForecast",
+  phone: "+14697783293",
 }
 
 const appEnvironments = {

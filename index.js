@@ -139,6 +139,9 @@ app.post("/error", (req, res) => {
 // create user and get a magic link in an email
 app.post("/user", api.createUser)
 
+// add phone number for user
+app.post("/phone/:phone", [checkApiKey, authenticateToken], api.addPhoneNumber)
+
 // get a jwt from a magic link
 app.get("/jwt/:token", api.getTokenFromMagicLink)
 
@@ -164,7 +167,11 @@ app.get("/data", [checkApiKey, authenticateToken], async (req, res) => {
 app.delete("/jwt", [checkApiKey, authenticateToken], api.removeToken)
 
 // request a magic link to log in
-app.get("/login/:email", api.requestMagicLoginLink)
+app.get("/login/email/:email", api.requestMagicLoginLink)
+app.get("/login/phone/:phone", api.requestMagicLoginLink)
+
+// change a username and all reviews
+// app.get("/changeusername/:username", [checkApiKey, authenticateToken], api.changeUsername)
 
 // post a rating and review
 app.post("/review", [checkApiKey, authenticateToken], api.upsertReview)
