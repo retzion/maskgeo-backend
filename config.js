@@ -9,7 +9,7 @@ const appEnvironments = {
   production: "production",
 }
 
-const appEnvironment = appEnvironments[process.env["MG_ENV"] || "production"]
+const appEnvironment = appEnvironments[process.env["NODE_ENV"] || process.env["MG_ENV"] || "production"]
 
 const apiDomains = {
   development: "https://staging-maskgeo-backend.herokuapp.com",
