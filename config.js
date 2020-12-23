@@ -5,6 +5,7 @@ const websiteSettings = {
 }
 
 const appEnvironments = {
+  development: "development",
   local: "local",
   production: "production",
 }
