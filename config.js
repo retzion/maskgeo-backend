@@ -20,7 +20,7 @@ const apiDomains = {
 const apiDomain = apiDomains[appEnvironment]
 
 const redirectDomains = {
-  development: "https://staging-maskgeo-frontend.herokuapp.com",
+  development: "https://staging-maskgeo.herokuapp.com",
   local: "http://localhost:3000",
   production: "https://www.maskforecast.com",
 }
