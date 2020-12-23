@@ -1,14 +1,15 @@
-const { websiteSettings } = require("../../../config")
-const { sendMail } = require("../../util")
+const { redirectDomain, websiteSettings } = require("../../../config")
+const { sendMail, validatePhoneFormat } = require("../../util")
 const { mongoConnect } = require("../../mongo")
 const createMagicLinkAndHash = require("./createMagicLinkAndHash")
 const failedError = require("../failedError")
+const { sendText } = require("../../util/twilio")
 
 module.exports = async (req, res) => {
   try {
     // destructure parameters
     let {
-      body: { email, username },
+      body: { email, username, phone },
     } = req
     email = email.toLowerCase()
 
@@ -33,33 +34,48 @@ module.exports = async (req, res) => {
         .status(422)
         .send(failedError(422, "Invalid characters found in username."))
 
-    /** Insert the user */
-    const userFindKey = {
-      $or: [{ username: { $regex: new RegExp(username, "i") } }, { email }],
-    }
-    const [magicLinkToken, magicLinkTokenHash] = createMagicLinkAndHash()
+    // validate phone number
+    const validPhone = validatePhoneFormat(phone)
 
+    /** Insert the user */
+    let orQueryArray = [
+      { username: { $regex: new RegExp(username, "i") } },
+      { email },
+    ]
+    if (validPhone) orQueryArray.push({ phone })
+    const [emailToken, emailTokenHash] = createMagicLinkAndHash()
+    const [phoneToken, phoneTokenHash] = createMagicLinkAndHash()
     let newUser
 
     // db function
     const fnCreateUser = async (db, promise) => {
       const userCollection = db.collection("User")
       let existingUser = await userCollection
-        .findOne(userFindKey)
+        .findOne({ $or: orQueryArray })
         .catch(() => undefined)
       if (existingUser) {
         if (existingUser.email === email)
           promise.resolve({ error: "Email address already exists." })
         if (existingUser.username.toLowerCase() === username.toLowerCase())
           promise.resolve({ error: "Username already exists." })
+        if (existingUser.phone === phone)
+          promise.resolve({ error: "Phone number already exists." })
       } else {
         const magicLinkExpires = new Date()
         magicLinkExpires.setMinutes(magicLinkExpires.getMinutes() + 10)
         newUser = {
-          authTokens: [{ hex: magicLinkToken, exp: magicLinkExpires }],
+          authTokens: [{ hex: emailTokenHash, exp: magicLinkExpires, verify: "email" }],
           email,
           userAgent: req.headers["user-agent"],
           username,
+        }
+        if (validPhone) {
+          newUser.authTokens.push({
+            hex: phoneTokenHash,
+            exp: magicLinkExpires,
+            verify: "phone",
+          })
+          newUser.phone = phone
         }
         existingUser = await userCollection.insertOne(newUser).catch(e => {
           console.error(e, req)
@@ -79,16 +95,24 @@ module.exports = async (req, res) => {
     if (!createdUser) return res.sendStatus(500)
     else if (createdUser.error) return res.send(createdUser)
     else {
+      const emailLink = `${redirectDomain}/token/${emailToken}`
+      const phoneLink = `${redirectDomain}/token/${phoneToken}`
+
       /** @DEV Create and email a magic link containing a token to fetch a JWT */
-      await sendMail(email, "Welcome to MaskForecast", "new-account", {
+      await sendMail(email, `Welcome to ${websiteSettings.oneWordName}`, "new-account", {
+        profileLink: `${req.headers.origin}/?profile`,
         email,
         username,
         expires: "in 10 minutes",
-        link: `${req.headers.origin}/token/${magicLinkToken}`,
-        buttonBackgroundColor: "cornflowerblue",
-        buttonTextColor: "#ffffff",
-        websiteOneWordName: websiteSettings.oneWordName,
+        link: emailLink,
+        magicLinkToken: emailToken,
       })
+      if (phone)
+        sendText({
+          body: `Click this link to verify your phone on ${websiteSettings.friendlyName}\n\n${phoneLink}\n\nOr copy this token to the login form:\n\n${phoneToken}\n\n`,
+          phone,
+        })
+
       res.sendStatus(200)
     }
   } catch (err) {

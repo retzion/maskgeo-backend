@@ -1,14 +1,16 @@
 const websiteSettings = {
   friendlyName: "Mask Forecast",
   oneWordName: "MaskForecast",
+  phone: "+14697783293",
 }
 
 const appEnvironments = {
+  development: "development",
   local: "local",
   production: "production",
 }
 
-const appEnvironment = appEnvironments[process.env["MG_ENV"] || "production"]
+const appEnvironment = appEnvironments[process.env["NODE_ENV"] || process.env["MG_ENV"] || "production"]
 
 const apiDomains = {
   development: "https://staging-maskgeo-backend.herokuapp.com",
@@ -18,7 +20,7 @@ const apiDomains = {
 const apiDomain = apiDomains[appEnvironment]
 
 const redirectDomains = {
-  development: "https://staging-maskgeo-frontend.herokuapp.com",
+  development: "https://staging-maskgeo.herokuapp.com",
   local: "http://localhost:3000",
   production: "https://www.maskforecast.com",
 }

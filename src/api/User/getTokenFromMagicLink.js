@@ -18,31 +18,38 @@ module.exports = async (req, res) => {
   const findQuery = { "authTokens.hex": magicLinkTokenHash }
 
   // db function to search for token hash
-  const fnFindUserByToken = async (db, promise) => {
+  const fnFindUserByToken = async db => {
     const userCollection = db.collection("User")
     let existingUser = await userCollection
       .findOne(findQuery)
       .catch(() => undefined)
 
     if (existingUser) {
-      const { exp } = existingUser.authTokens.find(
+      const { exp, verify } = existingUser.authTokens.find(
         t => t.hex === magicLinkTokenHash
       )
-      if (exp < new Date())
-        return res.status(403).send("Token has expired.")
+      if (exp < new Date()) return res.status(403).send("Token has expired.")
       else {
+        let updates = {
+          userAgent: req.headers["user-agent"],
+          lastSession: new Date(),
+        }
+        updates.emailVerified = existingUser.emailVerified || verify === "email"
+        updates.phoneVerified = existingUser.phoneVerified || verify === "phone"
+
         updateUser({
           query: findQuery,
-          updates: {
-            userAgent: req.headers["user-agent"],
-            lastSession: new Date(),
-          },
+          updates,
         })
+        
         return getToken(
           {
             ...req,
             params: {
               email: existingUser.email,
+              emailVerified: updates.emailVerified,
+              phone: existingUser.phone,
+              phoneVerified: updates.phoneVerified,
               username: existingUser.username,
               _id: existingUser._id,
             },

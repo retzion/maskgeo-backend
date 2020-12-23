@@ -1,6 +1,6 @@
 {
   "name": "maskgeo-backend",
-  "version": "0.1.30",
+  "version": "0.1.34",
   "repository": "https://github.com/retzion/maskgeo-backend.git",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node index.js",
     "start:prod": "MG_ENV=production node index.js",
-    "start:local": "MG_ENV=local PORT=3001 nodemon --inspect index.js",
+    "dev": "MG_ENV=local PORT=3001 nodemon --inspect index.js",
     "start:staging": "MG_ENV=staging PORT=3001 node index.js",
     "test": "cross-env NODE_ENV=test MG_ENV=local PORT=3001 jest --testTimeout=10000 --detectOpenHandles"
   },
@@ -31,7 +31,8 @@
     "mongodb": "3.5.7",
     "nodemailer": "6.4.8",
     "nodemailer-handlebars": "1.0.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "twilio": "^3.54.1"
   },
   "devDependencies": {
     "cross-env": "^7.0.2",

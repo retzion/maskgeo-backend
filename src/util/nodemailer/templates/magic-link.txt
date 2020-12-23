@@ -6,3 +6,8 @@ Here is a link to log you into MaskForecast:
 {{link}}
 
 This link will expire {{expires}}.
+
+You can also copy/paste this token to the login screen of
+{{websiteFriendlyName}}
+
+{{magicLinkToken}}
